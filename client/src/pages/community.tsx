@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { MessageSquare, ThumbsUp, TrendingUp, Users, ArrowUpRight, Hash } from "lucide-react";
 import Marquee from "@/components/ui/marquee";
-import communityHero from '@assets/generated_images/high_contrast_black_and_white_photography_of_a_diverse_crowd.png';
+import communityHero from '@assets/generated_images/gritty_black_and_white_crowd_shot.png';
 
 const DISCUSSIONS = [
   {
