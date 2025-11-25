@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Clock, ArrowRight } from "lucide-react";
+import { Clock, ArrowUpRight } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 
@@ -17,70 +17,72 @@ export function ItemCard({ item, onRequest }: ItemCardProps) {
 
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2 }}
+      whileHover={{ y: -8 }}
+      transition={{ type: "spring", stiffness: 300 }}
+      className="h-full"
     >
-      <Card className="overflow-hidden group h-full border-border/50 hover:border-primary/20 transition-colors shadow-sm hover:shadow-md bg-card">
-        <div className="aspect-[4/3] overflow-hidden relative bg-muted">
+      <Card className="h-full border-2 border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 flex flex-col bg-white group">
+        <div className="aspect-[4/3] overflow-hidden relative border-b-2 border-black">
           <img 
             src={item.image} 
             alt={item.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
           />
           <div className="absolute top-3 right-3">
-            <Badge variant={isAvailable ? "secondary" : "outline"} className="backdrop-blur-md bg-background/80">
+            <Badge 
+              variant={isAvailable ? "default" : "destructive"} 
+              className={`rounded-none border-2 border-black font-bold uppercase tracking-wider ${isAvailable ? 'bg-primary text-black hover:bg-primary' : ''}`}
+            >
               {item.status}
-            </Badge>
-          </div>
-          <div className="absolute top-3 left-3">
-            <Badge variant="outline" className="backdrop-blur-md bg-background/80 text-xs">
-              {item.category}
             </Badge>
           </div>
         </div>
         
-        <CardContent className="p-5 space-y-3">
+        <CardContent className="p-5 space-y-4 flex-grow">
           <div className="flex justify-between items-start gap-2">
-            <h3 className="font-display font-bold text-lg leading-tight line-clamp-2 text-foreground group-hover:text-primary transition-colors">
+            <h3 className="font-display font-bold text-xl leading-tight uppercase tracking-tight text-black">
               {item.title}
             </h3>
           </div>
           
-          <p className="text-sm text-muted-foreground line-clamp-2 h-10">
-            {item.description}
-          </p>
-          
-          <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-            <Badge variant="outline" className="rounded-full px-2 py-0 h-5 text-[10px] font-normal border-border">
+          <div className="flex gap-2 flex-wrap">
+             <Badge variant="outline" className="rounded-none border-black text-xs font-bold uppercase">
+              {item.category}
+            </Badge>
+            <Badge variant="outline" className="rounded-none border-black text-xs font-bold uppercase">
               {item.condition}
             </Badge>
-            <span className="flex items-center gap-1 ml-auto">
-              <Clock className="w-3 h-3" />
-              {formatDistanceToNow(new Date(item.postedAt), { addSuffix: true })}
-            </span>
           </div>
+
+          <p className="text-sm text-muted-foreground line-clamp-2 font-medium">
+            {item.description}
+          </p>
         </CardContent>
         
-        <CardFooter className="p-4 pt-0 flex items-center justify-between border-t border-border/50 mt-auto bg-muted/20 h-14">
-          <div className="flex items-center gap-2">
-            <Avatar className="w-6 h-6 border border-border">
+        <CardFooter className="p-4 pt-0 mt-auto flex items-center justify-between border-t-2 border-black bg-muted/50 h-16">
+          <div className="flex items-center gap-3">
+            <Avatar className="w-8 h-8 border-2 border-black rounded-none">
               <AvatarImage src={item.owner.avatar} />
-              <AvatarFallback>{item.owner.name[0]}</AvatarFallback>
+              <AvatarFallback className="rounded-none font-bold bg-white text-black">{item.owner.name[0]}</AvatarFallback>
             </Avatar>
-            <span className="text-xs font-medium text-muted-foreground truncate max-w-[100px]">
-              {item.owner.name}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-xs font-bold uppercase tracking-wider text-black">
+                {item.owner.name}
+              </span>
+              <span className="text-[10px] text-muted-foreground uppercase font-bold">
+                {formatDistanceToNow(new Date(item.postedAt), { addSuffix: true })}
+              </span>
+            </div>
           </div>
           
           <Button 
-            size="sm" 
-            variant={isAvailable ? "default" : "secondary"}
+            size="icon"
+            variant="default" 
             disabled={!isAvailable}
             onClick={() => onRequest(item.id)}
-            className="h-8 px-3 text-xs gap-1"
+            className="rounded-none border-2 border-black w-10 h-10 bg-black text-white hover:bg-primary hover:text-black transition-colors"
           >
-            {isAvailable ? 'Request' : 'Details'}
-            {isAvailable && <ArrowRight className="w-3 h-3" />}
+            <ArrowUpRight className="w-5 h-5" />
           </Button>
         </CardFooter>
       </Card>
