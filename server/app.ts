@@ -1,7 +1,14 @@
 import { type Server } from "node:http";
-
 import express, { type Express, type Request, Response, NextFunction } from "express";
+import session from "express-session";
+import createMemoryStore from "memorystore";
 import { registerRoutes } from "./routes";
+
+declare module "express-session" {
+  interface SessionData {
+    userId: string;
+  }
+}
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -21,6 +28,22 @@ declare module 'http' {
     rawBody: unknown
   }
 }
+
+const MemoryStore = createMemoryStore(session);
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'equipshare-secret-key-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  },
+  store: new MemoryStore({
+    checkPeriod: 86400000 // prune expired entries every 24h
+  }),
+}));
+
 app.use(express.json({
   verify: (req, _res, buf) => {
     req.rawBody = buf;

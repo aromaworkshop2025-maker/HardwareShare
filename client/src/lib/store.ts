@@ -1,19 +1,12 @@
 import { create } from 'zustand';
-import { Item, MOCK_ITEMS } from './mock-data';
+import type { ItemWithOwner } from '@shared/schema';
 
 interface StoreState {
-  items: Item[];
-  addItem: (item: Item) => void;
-  requestItem: (itemId: string) => void;
+  items: ItemWithOwner[];
+  setItems: (items: ItemWithOwner[]) => void;
 }
 
 export const useStore = create<StoreState>((set) => ({
-  items: MOCK_ITEMS,
-  addItem: (item) => set((state) => ({ items: [item, ...state.items] })),
-  requestItem: (itemId) =>
-    set((state) => ({
-      items: state.items.map((item) =>
-        item.id === itemId ? { ...item, status: 'Requested' } : item
-      ),
-    })),
+  items: [],
+  setItems: (items) => set({ items }),
 }));

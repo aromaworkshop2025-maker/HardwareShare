@@ -1,38 +1,43 @@
 import { create } from 'zustand';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  role: 'user' | 'admin';
-}
+import { authApi } from '@/lib/api';
+import type { User } from '@shared/schema';
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string) => void;
-  logout: () => void;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name: string) => Promise<void>;
+  logout: () => Promise<void>;
+  checkAuth: () => Promise<void>;
 }
-
-// Mock user data
-const MOCK_USER: User = {
-  id: 'u1',
-  name: 'Alex Chen',
-  email: 'alex@tech.co',
-  avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-  role: 'user',
-};
 
 export const useAuth = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
-  login: (email: string) => {
-    // Simulate login
-    set({ 
-      user: { ...MOCK_USER, email }, 
-      isAuthenticated: true 
-    });
+  isLoading: true,
+  
+  checkAuth: async () => {
+    try {
+      const user = await authApi.getMe();
+      set({ user, isAuthenticated: true, isLoading: false });
+    } catch (error) {
+      set({ user: null, isAuthenticated: false, isLoading: false });
+    }
   },
-  logout: () => set({ user: null, isAuthenticated: false }),
+  
+  login: async (email: string, password: string) => {
+    const user = await authApi.login({ email, password });
+    set({ user, isAuthenticated: true });
+  },
+  
+  register: async (email: string, password: string, name: string) => {
+    const user = await authApi.register({ email, password, name });
+    set({ user, isAuthenticated: true });
+  },
+  
+  logout: async () => {
+    await authApi.logout();
+    set({ user: null, isAuthenticated: false });
+  },
 }));

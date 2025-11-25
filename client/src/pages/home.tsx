@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { useAuth } from "@/hooks/use-auth";
+import { itemsApi, requestsApi } from "@/lib/api";
 import { Navbar } from "@/components/layout/navbar";
 import { ItemCard } from "@/components/ui/item-card";
 import { Input } from "@/components/ui/input";
@@ -13,23 +14,47 @@ import { motion, AnimatePresence } from "framer-motion";
 import heroImage from '@assets/generated_images/overhead_shot_of_an_organized_designer_desk.png';
 import headphoneImage from '@assets/generated_images/close_up_of_high_end_headphones.png';
 import abstractImage from '@assets/generated_images/abstract_tech_hardware_arrangement.png';
-
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const CATEGORIES = ['All', 'Laptop', 'Monitor', 'Peripheral', 'Audio', 'Tablet', 'Other'];
 
 export default function Home() {
-  const { items, requestItem } = useStore();
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
 
+  // Fetch items
+  const { data: items = [], isLoading } = useQuery({
+    queryKey: ['items'],
+    queryFn: itemsApi.getAll,
+  });
+
+  const requestMutation = useMutation({
+    mutationFn: (itemId: string) => requestsApi.create({ itemId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+      toast({
+        title: "Request Sent",
+        description: "The owner has been notified. Good luck.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const filteredItems = items.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase()) || 
                           item.description.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = category === 'All' || item.category === category;
+    const matchesCategory = category === 'All' || item.category.toLowerCase() === category.toLowerCase();
     return matchesSearch && matchesCategory;
   });
 
@@ -39,11 +64,7 @@ export default function Home() {
       return;
     }
     
-    requestItem(id);
-    toast({
-      title: "Request Sent",
-      description: "The owner has been notified. Good luck.",
-    });
+    requestMutation.mutate(id);
   };
 
   return (
@@ -57,7 +78,7 @@ export default function Home() {
               <span className="mx-8 font-bold text-black uppercase tracking-widest text-sm flex items-center gap-4">
                  <Zap className="w-4 h-4 fill-black" /> Available in San Francisco 
                  <span className="w-2 h-2 bg-black rounded-full"></span>
-                 324 Active Listings
+                 {items.length} Active Listings
                  <span className="w-2 h-2 bg-black rounded-full"></span>
                  Verified Owners
                  <span className="w-2 h-2 bg-black rounded-full"></span>
@@ -169,24 +190,31 @@ export default function Home() {
             </div>
 
             {/* Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              <AnimatePresence mode="popLayout">
-                {filteredItems.length > 0 ? (
-                  filteredItems.map((item) => (
-                    <ItemCard key={item.id} item={item} onRequest={handleRequest} />
-                  ))
-                ) : (
-                  <div className="col-span-full flex flex-col items-center justify-center py-32 border-2 border-dashed border-black bg-muted/30">
-                    <Box className="w-16 h-16 text-muted-foreground mb-6" />
-                    <h3 className="text-2xl font-display font-bold uppercase mb-2">Nothing Found</h3>
-                    <p className="text-muted-foreground mb-8 font-medium">We couldn't find any gear matching your criteria.</p>
-                    <Button size="lg" onClick={() => {setSearch(''); setCategory('All');}} className="rounded-none border-2 border-black bg-primary text-black hover:bg-black hover:text-white font-bold uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                      Reset Filters
-                    </Button>
-                  </div>
-                )}
-              </AnimatePresence>
-            </div>
+            {isLoading ? (
+              <div className="text-center py-20">
+                <div className="inline-block animate-spin w-12 h-12 border-4 border-black border-t-transparent rounded-full"></div>
+                <p className="mt-4 font-bold uppercase">Loading gear...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <AnimatePresence mode="popLayout">
+                  {filteredItems.length > 0 ? (
+                    filteredItems.map((item) => (
+                      <ItemCard key={item.id} item={item} onRequest={handleRequest} />
+                    ))
+                  ) : (
+                    <div className="col-span-full flex flex-col items-center justify-center py-32 border-2 border-dashed border-black bg-muted/30">
+                      <Box className="w-16 h-16 text-muted-foreground mb-6" />
+                      <h3 className="text-2xl font-display font-bold uppercase mb-2">Nothing Found</h3>
+                      <p className="text-muted-foreground mb-8 font-medium">We couldn't find any gear matching your criteria.</p>
+                      <Button size="lg" onClick={() => {setSearch(''); setCategory('All');}} className="rounded-none border-2 border-black bg-primary text-black hover:bg-black hover:text-white font-bold uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        Reset Filters
+                      </Button>
+                    </div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
             
             {/* Newsletter / CTA */}
             <div className="mt-20 border-2 border-black bg-black text-white p-12 md:p-24 text-center relative overflow-hidden">

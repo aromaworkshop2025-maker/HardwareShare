@@ -9,6 +9,8 @@ import AuthPage from "@/pages/auth";
 import ProfilePage from "@/pages/profile";
 import CommunityPage from "@/pages/community";
 import ManifestoPage from "@/pages/manifesto";
+import { useAuth } from "@/hooks/use-auth";
+import { useEffect } from "react";
 
 function Router() {
   return (
@@ -24,6 +26,12 @@ function Router() {
 }
 
 function App() {
+  const { checkAuth } = useAuth();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
