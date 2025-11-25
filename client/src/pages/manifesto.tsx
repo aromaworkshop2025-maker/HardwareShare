@@ -2,7 +2,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Target, Shield, Zap, Globe } from "lucide-react";
 import Marquee from "@/components/ui/marquee";
-import manifestoBg from '@assets/generated_images/abstract_brutalist_digital_art.png';
+import manifestoBg from '@assets/generated_images/abstract_digital_network_nodes.png';
 
 export default function ManifestoPage() {
   return (
