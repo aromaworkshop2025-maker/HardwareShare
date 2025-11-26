@@ -20,20 +20,14 @@ export function Navbar() {
 
   const NavItems = () => (
     <>
-      <Link href="/">
-        <a className={`text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors ${location === "/" ? "underline decoration-2 decoration-primary underline-offset-4" : ""}`}>
-          Start
-        </a>
+      <Link href="/" className={`text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors ${location === "/" ? "underline decoration-2 decoration-primary underline-offset-4" : ""}`}>
+        Start
       </Link>
-      <Link href="/community">
-        <a className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors">
-          Community
-        </a>
+      <Link href="/community" className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors">
+        Community
       </Link>
-      <Link href="/about">
-        <a className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors">
-          Manifesto
-        </a>
+      <Link href="/about" className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors">
+        Manifesto
       </Link>
     </>
   );
@@ -41,15 +35,13 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b-2 border-black bg-background">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-        <Link href="/">
-          <a className="flex items-center gap-2 group">
-            <div className="p-2 bg-black text-primary group-hover:bg-primary group-hover:text-black transition-colors border-2 border-black">
-              <CircuitBoard className="w-6 h-6" />
-            </div>
-            <span className="font-display font-bold text-2xl tracking-tighter uppercase hidden sm:block">
-              Equip<span className="text-primary">Share</span>
-            </span>
-          </a>
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="p-2 bg-black text-primary group-hover:bg-primary group-hover:text-black transition-colors border-2 border-black">
+            <CircuitBoard className="w-6 h-6" />
+          </div>
+          <span className="font-display font-bold text-2xl tracking-tighter uppercase hidden sm:block">
+            Equip<span className="text-primary">Share</span>
+          </span>
         </Link>
 
         {/* Desktop Nav */}
@@ -69,15 +61,15 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-none border-2 border-black p-0 overflow-hidden hover:bg-accent">
                     <Avatar className="h-full w-full rounded-none">
-                      <AvatarImage src={user.avatar || undefined} alt={user.name} />
-                      <AvatarFallback className="rounded-none font-bold">{user.name.charAt(0)}</AvatarFallback>
+                      <AvatarImage src={user.profileImageUrl || undefined} alt={`${user.firstName} ${user.lastName}`} />
+                      <AvatarFallback className="rounded-none font-bold">{user.firstName?.charAt(0) || 'U'}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 rounded-none border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                   <div className="flex items-center justify-start gap-2 p-2 bg-muted/50 border-b-2 border-black">
                     <div className="flex flex-col space-y-1 leading-none">
-                      <p className="font-bold uppercase truncate">{user.name}</p>
+                      <p className="font-bold uppercase truncate">{user.firstName} {user.lastName}</p>
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                   </div>
@@ -95,10 +87,8 @@ export function Navbar() {
             </>
           ) : (
             <div className="flex items-center gap-4">
-              <Link href="/auth">
-                <a className="text-sm font-bold uppercase tracking-wider hover:underline decoration-2 decoration-primary underline-offset-4">
-                  Login
-                </a>
+              <Link href="/auth" className="text-sm font-bold uppercase tracking-wider hover:underline decoration-2 decoration-primary underline-offset-4">
+                Login
               </Link>
               <Link href="/auth">
                 <Button className="rounded-none border-2 border-black bg-black text-white hover:bg-primary hover:text-black font-bold uppercase tracking-wide shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:translate-y-[1px] hover:translate-x-[1px] hover:shadow-none transition-all">
