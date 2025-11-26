@@ -1,41 +1,36 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, pgEnum, integer } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const itemStatusEnum = pgEnum('item_status', ['available', 'requested', 'borrowed']);
-export const itemConditionEnum = pgEnum('item_condition', ['new', 'like_new', 'good', 'fair']);
-export const itemCategoryEnum = pgEnum('item_category', ['laptop', 'monitor', 'peripheral', 'audio', 'tablet', 'other']);
-export const requestStatusEnum = pgEnum('request_status', ['pending', 'approved', 'declined', 'completed']);
-
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const users = sqliteTable("users", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
   name: text("name").notNull(),
   avatar: text("avatar"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: integer("created_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
 });
 
-export const items = pgTable("items", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const items = sqliteTable("items", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  category: itemCategoryEnum("category").notNull(),
-  condition: itemConditionEnum("condition").notNull(),
+  category: text("category", { enum: ['laptop', 'monitor', 'peripheral', 'audio', 'tablet', 'other'] }).notNull(),
+  condition: text("condition", { enum: ['new', 'like_new', 'good', 'fair'] }).notNull(),
   image: text("image").notNull(),
-  status: itemStatusEnum("status").notNull().default('available'),
-  ownerId: varchar("owner_id").notNull().references(() => users.id),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  status: text("status", { enum: ['available', 'requested', 'borrowed'] }).notNull().default('available'),
+  ownerId: text("owner_id").notNull().references(() => users.id),
+  createdAt: integer("created_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
 });
 
-export const requests = pgTable("requests", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  itemId: varchar("item_id").notNull().references(() => items.id),
-  requesterId: varchar("requester_id").notNull().references(() => users.id),
-  status: requestStatusEnum("status").notNull().default('pending'),
+export const requests = sqliteTable("requests", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  itemId: text("item_id").notNull().references(() => items.id),
+  requesterId: text("requester_id").notNull().references(() => users.id),
+  status: text("status", { enum: ['pending', 'approved', 'declined', 'completed'] }).notNull().default('pending'),
   message: text("message"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: integer("created_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
 });
 
 // Insert schemas
