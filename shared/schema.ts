@@ -1,9 +1,9 @@
 import { sql } from "drizzle-orm";
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { pgTable, text, timestamp, integer, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = sqliteTable("users", {
+export const users = pgTable("users", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   email: text("email").unique(),
   password: text("password"),
@@ -13,11 +13,11 @@ export const users = sqliteTable("users", {
   bio: text("bio"),
   location: text("location"),
   phone: text("phone"),
-  createdAt: integer("created_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
-  updatedAt: integer("updated_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const items = sqliteTable("items", {
+export const items = pgTable("items", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   title: text("title").notNull(),
   description: text("description").notNull(),
@@ -26,42 +26,42 @@ export const items = sqliteTable("items", {
   image: text("image").notNull(),
   status: text("status", { enum: ['available', 'requested', 'borrowed', 'unavailable'] }).notNull().default('available'),
   ownerId: text("owner_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
-  createdAt: integer("created_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
-  updatedAt: integer("updated_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const requests = sqliteTable("requests", {
+export const requests = pgTable("requests", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   itemId: text("item_id").notNull().references(() => items.id, { onDelete: 'cascade' }),
   requesterId: text("requester_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
   status: text("status", { enum: ['pending', 'approved', 'declined', 'completed', 'cancelled'] }).notNull().default('pending'),
   message: text("message"),
-  startDate: integer("start_date", { mode: 'timestamp' }),
-  endDate: integer("end_date", { mode: 'timestamp' }),
-  createdAt: integer("created_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
-  updatedAt: integer("updated_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
-  respondedAt: integer("responded_at", { mode: 'timestamp' }),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  respondedAt: timestamp("responded_at"),
 });
 
-export const ratings = sqliteTable("ratings", {
+export const ratings = pgTable("ratings", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   requestId: text("request_id").notNull().references(() => requests.id, { onDelete: 'cascade' }),
   fromUserId: text("from_user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
   toUserId: text("to_user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
   rating: integer("rating").notNull(),
   comment: text("comment"),
-  createdAt: integer("created_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const notifications = sqliteTable("notifications", {
+export const notifications = pgTable("notifications", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
   type: text("type", { enum: ['request_received', 'request_approved', 'request_declined', 'item_returned', 'rating_received', 'message_received'] }).notNull(),
   title: text("title").notNull(),
   message: text("message").notNull(),
   relatedId: text("related_id"),
-  isRead: integer("is_read").notNull().default(0),
-  createdAt: integer("created_at", { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  isRead: boolean("is_read").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // Insert schemas

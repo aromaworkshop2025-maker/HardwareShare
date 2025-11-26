@@ -559,8 +559,8 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .select({ count: count() })
       .from(notifications)
-      .where(and(eq(notifications.userId, userId), eq(notifications.isRead, 0)));
-    
+      .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+
     return Number(result[0]?.count) || 0;
   }
 
@@ -570,11 +570,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async markNotificationAsRead(id: string): Promise<void> {
-    await db.update(notifications).set({ isRead: 1 }).where(eq(notifications.id, id));
+    await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, id));
   }
 
   async markAllNotificationsAsRead(userId: string): Promise<void> {
-    await db.update(notifications).set({ isRead: 1 }).where(eq(notifications.userId, userId));
+    await db.update(notifications).set({ isRead: true }).where(eq(notifications.userId, userId));
   }
 
   // ==================== STATISTICS METHODS ====================
