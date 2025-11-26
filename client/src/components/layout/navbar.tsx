@@ -15,7 +15,7 @@ import { useState } from "react";
 
 export function Navbar() {
   const { user, logout } = useAuth();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [open, setOpen] = useState(false);
 
   const NavItems = () => (
@@ -69,7 +69,7 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-none border-2 border-black p-0 overflow-hidden hover:bg-accent">
                     <Avatar className="h-full w-full rounded-none">
-                      <AvatarImage src={user.avatar} alt={user.name} />
+                      <AvatarImage src={user.avatar || undefined} alt={user.name} />
                       <AvatarFallback className="rounded-none font-bold">{user.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                   </Button>
@@ -81,13 +81,9 @@ export function Navbar() {
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                   </div>
-                  <DropdownMenuItem asChild className="rounded-none focus:bg-primary focus:text-black cursor-pointer font-medium">
-                    <Link href="/profile">
-                      <a className="flex items-center w-full">
-                        <UserIcon className="mr-2 h-4 w-4" />
-                        Profile
-                      </a>
-                    </Link>
+                  <DropdownMenuItem onClick={() => setLocation('/profile')} className="rounded-none focus:bg-primary focus:text-black cursor-pointer font-medium">
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    Profile
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-black/20" />
                   <DropdownMenuItem onClick={logout} className="rounded-none focus:bg-destructive focus:text-white cursor-pointer font-medium text-destructive">
